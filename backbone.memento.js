@@ -1,9 +1,9 @@
-// Backbone.Memento v0.4.1a
+// Backbone.Memento v0.4.1
 //
 // Copyright (C)2011 Derick Bailey, Muted Solutions, LLC
-// Distributed Under MIT License
+// Distributed Under MIT Liscene
 //
-// Documentation and Full License Available at:
+// Documentation and Full Licence Availabe at:
 // http://github.com/derickbailey/backbone.memento
 
 Backbone.Memento = (function(Backbone, _){
@@ -13,7 +13,7 @@ Backbone.Memento = (function(Backbone, _){
   // Memento: the public API
   // ----------------------------
   var Memento = function(structure, config){
-    this.version = "0.4.1a";
+    this.version = "0.4.1";
 
     config = _.extend({ignore: []}, config);
 
@@ -26,7 +26,7 @@ Backbone.Memento = (function(Backbone, _){
     };
 
     this.store = function(){
-      var currentState = serializer.serialize();
+      var currentState = _.cloneDeep( serializer.serialize() );
       mementoStack.push(currentState);
     };
 
@@ -39,6 +39,16 @@ Backbone.Memento = (function(Backbone, _){
       var previousState = mementoStack.rewind();
       restoreState(previousState, restoreConfig);
     };
+
+    this.compareLastState = function( currentAttrs ) {
+      var previousState = mementoStack.readPop();
+      return _.isEqual( previousState, currentAttrs );
+    };
+
+    this.compareLastAttribute = function( key, value ) {
+      var previousState = mementoStack.readPop();
+      return _.isEqual( previousState[ key ], value );
+    }
   };
 
   // ----------------------------
@@ -150,6 +160,10 @@ Backbone.Memento = (function(Backbone, _){
       var oldAttrs = attributeStack[0];
       initialize();
       return oldAttrs;
+    }
+
+    this.readPop = function() {
+      return _.last( attributeStack );
     }
 
     initialize();
